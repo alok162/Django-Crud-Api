@@ -1,0 +1,108 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
+from django.shortcuts import render
+import json
+from rest_framework.renderers import JSONRenderer
+
+
+# Create your views here.
+
+from django.shortcuts import render
+from rest_framework.response import Response
+# Create your views here.
+from rest_framework.views import APIView
+from django.http import HttpResponse
+from rest_framework import status
+from gateway_app.models import Gateway
+from gateway_app.models import Route_Map
+from rest_framework import generics
+from rest_framework.parsers import JSONParser
+
+
+from gateway_app.serializers import GatewayPostSerializer 
+from gateway_app.serializers import GatewayGetSerializer
+from gateway_app.serializers import RouteMappingPostSerializer 
+from gateway_app.serializers import RouteMappingGetSerializer
+from gateway_app.serializers import YourSerializer
+from gateway_app.serializers import GatewayPatchSerilizer
+
+
+
+
+class Gateway_Post(generics.ListCreateAPIView):
+	queryset = Gateway.objects.all()
+   	serializer_class = GatewayPostSerializer
+
+
+class Gateway_Detail(generics.RetrieveUpdateAPIView):
+	queryset = Gateway.objects.all()
+   	serializer_class = GatewayGetSerializer
+
+# class Gateway_Patch(APIView):
+# 	def patch(self, request, pk):
+#         testmodel = self.get_object(pk)
+#         serializer = TestModelSerializer(testmodel, data=request.data, partial=True) # set partial=True to update a data partially
+#         if serializer.is_valid():
+#             serializer.save()
+#             return JsonReponse(code=201, data=serializer.data)
+#         return JsonResponse(code=400, data="wrong parameters")
+
+
+class GetPrefix(APIView):
+
+    def get(self, request,pk, format=None):
+		prefixdict = {}
+		templist = []
+		temp = Route_Map.objects.values()
+		outstr=''
+		for i in temp:
+			prefixdict[i['prefix']]=i['gateway_id']
+		for i in str(pk):
+			outstr+=i
+			if outstr in prefixdict:
+				templist.append(outstr)
+		print templist
+		gateway_name = ''
+		query = Route_Map.objects.all().select_related('gateway').filter(gateway=prefixdict[templist[len(templist)-1]])
+		for i in query:
+			gateway_name = i.gateway.gateway_name
+		yourdata= [{"gateway_name": gateway_name}]
+		results = YourSerializer(yourdata, many=True).data
+		return Response(results)
+
+
+
+class Route_Mapping(APIView):
+
+    def post(self, request, format=None):
+		data = JSONParser().parse(request)
+		serializer = RouteMappingPostSerializer(data=data)
+		if serializer.is_valid():
+			results = {}
+			query = Gateway.objects.filter(gateway_name=serializer.data['gateway_name'])
+			# serializer.save()
+			results['gateway'] = query.values()[0]['id']
+			results['prefix'] = serializer.data['prefix']
+			print results, serializer
+			results.save()
+			return Response(results, status=status.HTTP_201_CREATED)
+		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class Route_Mapping_Detail(APIView):
+    def get(self, request,pk, format=None):
+        obj = Route_Map.objects.all().select_related('gateway')
+        serializer = RouteMappingGetSerializer(obj, many=True)
+        resdata = {}
+        resdata['prefix']=serializer.data[0]['prefix']
+        for i in obj:
+			resdata['gateway_name']=i.gateway.gateway_name
+        return Response(resdata)
+   	
+
+class Gateway_Update(generics.UpdateAPIView):
+    queryset = Gateway.objects.all()
+    lookup_field = 'ip_addresses'
+    serializer_class = GatewayPatchSerilizer
+
