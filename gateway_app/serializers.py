@@ -45,4 +45,4 @@ class YourSerializer(serializers.Serializer):
 class GatewayPatchSerilizer(serializers.ModelSerializer):
     class Meta:
         model = Gateway
-        fields = ('gateway_name', 'ip_addresses', 'id')
+        fields = ('gateway_name', 'ip_addresses')

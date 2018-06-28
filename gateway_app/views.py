@@ -101,8 +101,16 @@ class Route_Mapping_Detail(APIView):
         return Response(resdata)
    	
 
-class Gateway_Update(generics.UpdateAPIView):
-    queryset = Gateway.objects.all()
-    lookup_field = 'ip_addresses'
-    serializer_class = GatewayPatchSerilizer
+class Gateway_Update(APIView):
+    def get_object(self, pk):
+        return Gateway.objects.get(pk=pk)
+
+    def patch(self, request, pk):
+        testmodel = self.get_object(pk)
+        serializer = GatewayPatchSerilizer(testmodel, data=request.data, partial=True) # set partial=True to update a data partially
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(code=400, data="wrong parameters", status=status.HTTP_400_BAD_REQUEST)
+
 
