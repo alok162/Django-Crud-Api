@@ -8,26 +8,20 @@ from rest_framework import status
 
 
 class GatewayPostSerializer(serializers.ModelSerializer):
-    #model serializer inbuilt method with create() and update()
 		class Meta:
 			model = Gateway
 			fields = ['gateway_name', 'ip_addresses']
 
 
 class GatewayGetSerializer(serializers.ModelSerializer):
-    #model serializer inbuilt method with create() and update()
 		class Meta:
 			model = Gateway
 			fields = ['gateway_name', 'ip_addresses']
 
 
 class RouteMappingPostSerializer(serializers.Serializer):
-    #model serializer inbuilt method with create() and update()
 	gateway_name = serializers.CharField(max_length=200)
 	prefix = serializers.CharField(max_length=200)
-		# class Meta:
-		# 	model = Route_Map
-		# 	fields = ['gateway', 'prefix']
 
 
 class RouteMappingGetSerializer(serializers.ModelSerializer):

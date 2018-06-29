@@ -6,11 +6,8 @@ import json
 from rest_framework.renderers import JSONRenderer
 
 
-# Create your views here.
-
 from django.shortcuts import render
 from rest_framework.response import Response
-# Create your views here.
 from rest_framework.views import APIView
 from django.http import HttpResponse
 from rest_framework import status
@@ -18,6 +15,7 @@ from gateway_app.models import Gateway
 from gateway_app.models import Route_Map
 from rest_framework import generics
 from rest_framework.parsers import JSONParser
+from django.http import Http404
 
 
 from gateway_app.serializers import GatewayPostSerializer 
@@ -74,7 +72,6 @@ class GetPrefix(APIView):
 
 
 class Route_Mapping(APIView):
-
     def post(self, request, format=None):
 		data = JSONParser().parse(request)
 		serializer = RouteMappingPostSerializer(data=data)
@@ -112,5 +109,20 @@ class Gateway_Update(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(code=400, data="wrong parameters", status=status.HTTP_400_BAD_REQUEST)
+
+
+class Gateway_Delete(APIView):
+	def get_object(self, pk):
+		try:
+			return Gateway.objects.get(pk=pk)
+		except Gateway.DoesNotExist:
+			raise Http404
+	def delete(self, request, pk, format=None):
+		rout_map_obj = Route_Map.objects.get(gateway=pk)
+		rout_map_obj.delete()
+		Gateway.objects.get(pk=pk).delete()
+		return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 
 
