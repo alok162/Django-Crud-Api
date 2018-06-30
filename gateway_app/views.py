@@ -5,7 +5,6 @@ from django.shortcuts import render
 import json
 from rest_framework.renderers import JSONRenderer
 
-
 from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -17,14 +16,12 @@ from rest_framework import generics
 from rest_framework.parsers import JSONParser
 from django.http import Http404
 
-
 from gateway_app.serializers import GatewayPostSerializer 
 from gateway_app.serializers import GatewayGetSerializer
 from gateway_app.serializers import RouteMappingPostSerializer 
 from gateway_app.serializers import RouteMappingGetSerializer
 from gateway_app.serializers import YourSerializer
 from gateway_app.serializers import GatewayPatchSerilizer
-
 
 
 
@@ -37,18 +34,8 @@ class Gateway_Detail(generics.RetrieveUpdateAPIView):
 	queryset = Gateway.objects.all()
    	serializer_class = GatewayGetSerializer
 
-# class Gateway_Patch(APIView):
-# 	def patch(self, request, pk):
-#         testmodel = self.get_object(pk)
-#         serializer = TestModelSerializer(testmodel, data=request.data, partial=True) # set partial=True to update a data partially
-#         if serializer.is_valid():
-#             serializer.save()
-#             return JsonReponse(code=201, data=serializer.data)
-#         return JsonResponse(code=400, data="wrong parameters")
-
 
 class GetPrefix(APIView):
-
     def get(self, request,pk, format=None):
 		prefixdict = {}
 		templist = []
@@ -68,9 +55,8 @@ class GetPrefix(APIView):
 		yourdata= [{"gateway_name": gateway_name}]
 		results = YourSerializer(yourdata, many=True).data
 		return Response(results)
-
-
-
+		
+		
 class Route_Mapping(APIView):
     def post(self, request, format=None):
 		data1 = JSONParser().parse(request)
