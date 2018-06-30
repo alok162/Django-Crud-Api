@@ -73,17 +73,15 @@ class GetPrefix(APIView):
 
 class Route_Mapping(APIView):
     def post(self, request, format=None):
-		data = JSONParser().parse(request)
-		serializer = RouteMappingPostSerializer(data=data)
+		data1 = JSONParser().parse(request)
+		actual_data = {}
+		actual_data['prefix'] = data1['prefix']
+		actual_data['gateway_id'] = Gateway.objects.filter(gateway_name=data1['gateway_name']).values()[0]['id']
+		serializer = RouteMappingPostSerializer(data=actual_data)
+		print serializer
 		if serializer.is_valid():
-			results = {}
-			query = Gateway.objects.filter(gateway_name=serializer.data['gateway_name'])
-			# serializer.save()
-			results['gateway'] = query.values()[0]['id']
-			results['prefix'] = serializer.data['prefix']
-			print results, serializer
-			results.save()
-			return Response(results, status=status.HTTP_201_CREATED)
+			serializer.save()
+			return Response(serializer.data, status=status.HTTP_201_CREATED)
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

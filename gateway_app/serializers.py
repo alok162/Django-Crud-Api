@@ -20,8 +20,10 @@ class GatewayGetSerializer(serializers.ModelSerializer):
 
 
 class RouteMappingPostSerializer(serializers.Serializer):
-	gateway_name = serializers.CharField(max_length=200)
+	gateway_id = serializers.IntegerField()
 	prefix = serializers.CharField(max_length=200)
+	def create(self, validated_data):
+		return Route_Map.objects.create(**validated_data)
 
 
 class RouteMappingGetSerializer(serializers.ModelSerializer):
